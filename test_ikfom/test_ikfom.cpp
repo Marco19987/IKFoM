@@ -1,5 +1,5 @@
 #include <Eigen/Eigen>
-#include "../include/test_ikfom/use-ikfom.hpp"
+#include "use-ikfom.hpp"
 
 #define MAXIMUM_ITER 10 // check the meaning
 int main(int argc, char **argv)
