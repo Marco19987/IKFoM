@@ -29,5 +29,8 @@ install(
 add_executable(test_ikfom test_ikfom/test_ikfom.cpp)
 target_link_libraries(test_ikfom Eigen3::Eigen)
 
+add_executable(test_ikfom_dyn_measurement test_ikfom/test_ikfom_dyn_measurement.cpp)
+target_link_libraries(test_ikfom_dyn_measurement Eigen3::Eigen)
+
 
 ament_package()

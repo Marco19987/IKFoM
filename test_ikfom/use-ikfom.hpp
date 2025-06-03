@@ -45,10 +45,27 @@ MTK::get_cov<measurement_noise_ikfom>::type measurement_noise_cov()
 #define measurement_dof 6 //! zk = h(xk,vk) the dof is not the dim of zk
 #define measurement_noise_dof 6
 
+// Suggestion: Use static/global variables or a singleton class to hold external parameters.
+// Example using a static struct for parameters:
+
+struct ExternalParams {
+	Eigen::Vector3d bias{0.0, 0.5, 0.2}; // Example parameter
+	double scale = 1.0;
+};
+
+inline ExternalParams& get_external_params() {
+	static ExternalParams params;
+	return params;
+}
+
+// std::bind(f,_,_,std::ref(param)) , const &params
 Eigen::Matrix<double, state_dof, 1> get_f(state_ikfom &s, const input_ikfom &in)
 {
+	const ExternalParams& params = get_external_params(); // a way to pass extra arguments to the function
 	Eigen::Matrix<double, state_dof, 1> res = Eigen::Matrix<double, state_dof, 1>::Zero();
-	res.template block<3, 1>(0, 0) = (s.bQo * Eigen::Quaternion<double>(0, in.ovo[0], in.ovo[1], in.ovo[2]) * s.bQo.conjugate()).vec();
+	// Example usage of external parameters:
+	Eigen::Vector3d adjusted_ovo = in.ovo;
+	res.template block<3, 1>(0, 0) = (s.bQo * Eigen::Quaternion<double>(0, adjusted_ovo[0], adjusted_ovo[1], adjusted_ovo[2]) * s.bQo.conjugate()).vec();
 	res.template block<3, 1>(3, 0) = in.oomegao;
 	return res;
 }
@@ -88,5 +105,21 @@ Eigen::Matrix<double, measurement_dof, measurement_noise_dof> dh_dv(state_ikfom 
 	Eigen::Matrix<double, measurement_dof, measurement_noise_dof> cov = Eigen::Matrix<double, measurement_dof, measurement_noise_dof>::Identity();
 	return cov;
 }
+
+
+
+// template<typename measurement_runtime, typename measurementModel_dyn_runtime_share>
+// measurement h_dyn_runtime_share(state &s, esekfom::dyn_runtime_share_datastruct<double> &dyn_runtime_share_data) 
+// {
+// 	if(dyn_runtime_share_data.converge) {} // this value is true means iteration is converged 
+// 	if(condition) dyn_runtime_share_data.valid = false; // the iteration stops before convergence when this value is false, if conditions other than convergence is satisfied
+// 	dyn_runtime_share_data.h_x = H_x; // H_x is the result matrix of the first differentiation 
+// 	dyn_runtime_share_data.h_v = H_v; // H_v is the result matrix of the second differentiation
+// 	dyn_runtime_share_data.R = R; // R is the measurement noise covariance
+	
+// 	measurement h_;
+// 	h_.pos = s.pos;
+// 	return h_;
+// }
 
 #endif
