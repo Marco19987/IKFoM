@@ -51,6 +51,7 @@
 #include "../mtk/startIdx.hpp"
 #include "../mtk/build_manifold.hpp"
 #include "util.hpp"
+#include <functional>
 
 
 namespace esekfom {
@@ -115,7 +116,8 @@ public:
 	typedef Matrix<scalar_type, m, n> cov_;
 	typedef Matrix<scalar_type, n, 1> vectorized_state;
 	typedef Matrix<scalar_type, m, 1> flatted_state;
-	typedef flatted_state processModel(state &, const input &);
+	// typedef flatted_state processModel(state &, const input &);
+	typedef std::function<flatted_state(state &, const input &)> processModel;
 	typedef Eigen::Matrix<scalar_type, m, n> processMatrix1(state &, const input &);
 	typedef Eigen::Matrix<scalar_type, m, process_noise_dof> processMatrix2(state &, const input &);
 	typedef Eigen::Matrix<scalar_type, process_noise_dof, process_noise_dof> processnoisecovariance;
@@ -2251,7 +2253,7 @@ private:
 	cov F_x2 = cov::Identity();
 	cov L_ = cov::Identity();
 
-	processModel *f;
+	processModel f;
 	processMatrix1 *f_x;
 	processMatrix2 *f_w;
 

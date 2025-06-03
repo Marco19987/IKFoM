@@ -59,9 +59,8 @@ inline ExternalParams& get_external_params() {
 }
 
 // std::bind(f,_,_,std::ref(param)) , const &params
-Eigen::Matrix<double, state_dof, 1> get_f(state_ikfom &s, const input_ikfom &in)
+Eigen::Matrix<double, state_dof, 1> get_f(state_ikfom &s, const input_ikfom &in, ExternalParams &params)
 {
-	const ExternalParams& params = get_external_params(); // a way to pass extra arguments to the function
 	Eigen::Matrix<double, state_dof, 1> res = Eigen::Matrix<double, state_dof, 1>::Zero();
 	// Example usage of external parameters:
 	Eigen::Vector3d adjusted_ovo = in.ovo;

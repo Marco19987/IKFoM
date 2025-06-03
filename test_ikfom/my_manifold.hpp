@@ -45,8 +45,6 @@ struct MyManifold
   pose_measure b2_pose_e2;
   std::vector<pose_measure> object_pose;
 
-
-
   MyManifold(const wrench_measure& e1he1_e1 = wrench_measure(), const wrench_measure& e2he2_e2 = wrench_measure(),
              const pose_measure& b1_pose_e1 = pose_measure(), const pose_measure& b2_pose_e2 = pose_measure(),
              const std::vector<pose_measure>& object_pose = std::vector<pose_measure>())
@@ -78,14 +76,14 @@ struct MyManifold
 
   MyManifold()
   {
-    e1he1_e1 = wrench_measure();
-    e2he2_e2 = wrench_measure();
-    b1_pose_e1 = pose_measure();
-    b2_pose_e2 = pose_measure();
-    object_pose.resize(num_pose_measure);
+    this->e1he1_e1 = wrench_measure();
+    this->e2he2_e2 = wrench_measure();
+    this->b1_pose_e1 = pose_measure();
+    this->b2_pose_e2 = pose_measure();
+    this->object_pose.resize(num_pose_measure);
     for (int i = 0; i < num_pose_measure; ++i)
     {
-      object_pose[i] = pose_measure();
+      this->object_pose[i] = pose_measure();
     }
   }
 
@@ -125,7 +123,6 @@ struct MyManifold
       object_pose[i].oplus(vec.template segment<6>(24 + 6 * i), scale);
     }
   }
-
 };
 
 }  // namespace MTK

@@ -1,5 +1,6 @@
 #include <Eigen/Eigen>
 #include "use-ikfom.hpp"
+#include <functional>
 
 #define MAXIMUM_ITER 10 // check the meaning
 int main(int argc, char **argv)
@@ -32,7 +33,9 @@ int main(int argc, char **argv)
   std::fill(epsi, epsi + state_dof,
             0.001); // if the absolute of innovation of ekf update is smaller than epso, the update iteration is
                     // converged
-  kf.init(get_f, df_dx, df_dw, get_h, dh_dx, dh_dv, MAXIMUM_ITER, epsi);
+  ExternalParams process_params;
+  std::function<Eigen::Matrix<double, state_dof, 1>(state_ikfom&,const input_ikfom &)> f = std::bind(get_f, std::placeholders::_1, std::placeholders::_2, (process_params));
+  kf.init(f, df_dx, df_dw, get_h, dh_dx, dh_dv, MAXIMUM_ITER, epsi);
 
   // setup simulator real process
   state_ikfom true_state;
@@ -53,7 +56,7 @@ int main(int argc, char **argv)
     // state_ikfom cur_state_aft = kf.get_x();
 
     // simulate real system
-    true_state.boxplus(get_f(true_state, u), dt);
+    true_state.boxplus(get_f(true_state, u,process_params), dt);
     z = get_h(true_state, valid);
 
     std::cout << "Real state: \n"

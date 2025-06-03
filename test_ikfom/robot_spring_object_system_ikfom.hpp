@@ -103,7 +103,8 @@ h_dyn_runtime_share(state_ikfom& s, esekfom::dyn_runtime_share_datastruct<double
 																								  // measurement noise
 																								  // covariance
 
-  MTK::MyManifold<double, num_aruco> h_();
+  MTK::MyManifold<double, num_aruco> h_(wrench_measure(), wrench_measure(), pose_measure(), pose_measure(),
+										std::vector<pose_measure>(num_aruco, pose_measure()));
 
   return h_;
 }

@@ -60,10 +60,13 @@ int main(int argc, char** argv)
   //   // update
 
   // define manifold measure
-  MTK::MyManifold<double, 3> z();
+  MTK::MyManifold<double, 3> z(wrench_measure(), wrench_measure(), pose_measure(), pose_measure(),
+                                         std::vector<pose_measure>(3, pose_measure()));
   kf.update_iterated_dyn_runtime_share(z, h_dyn_runtime_share<3>);
 
-  MTK::MyManifold<double, 7> z1();
+  MTK::MyManifold<double, 7> z1(wrench_measure(), wrench_measure(), pose_measure(), pose_measure(),
+                                         std::vector<pose_measure>(7, pose_measure()));
+
   kf.update_iterated_dyn_runtime_share(z1, h_dyn_runtime_share<7>);
                                        
 
