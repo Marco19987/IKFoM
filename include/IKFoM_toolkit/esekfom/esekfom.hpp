@@ -118,8 +118,13 @@ public:
 	typedef Matrix<scalar_type, m, 1> flatted_state;
 	// typedef flatted_state processModel(state &, const input &);
 	typedef std::function<flatted_state(state &, const input &)> processModel;
-	typedef Eigen::Matrix<scalar_type, m, n> processMatrix1(state &, const input &);
-	typedef Eigen::Matrix<scalar_type, m, process_noise_dof> processMatrix2(state &, const input &);
+	
+	// typedef Eigen::Matrix<scalar_type, m, n> processMatrix1(state &, const input &);
+	typedef std::function<Eigen::Matrix<scalar_type, m, n>(state &, const input &)> processMatrix1;
+
+	// typedef Eigen::Matrix<scalar_type, m, process_noise_dof> processMatrix2(state &, const input &);
+	typedef std::function<Eigen::Matrix<scalar_type, m, process_noise_dof>(state &, const input &)> processMatrix2;
+
 	typedef Eigen::Matrix<scalar_type, process_noise_dof, process_noise_dof> processnoisecovariance;
 
 	typedef measurement measurementModel(state &, bool &);
@@ -2254,8 +2259,8 @@ private:
 	cov L_ = cov::Identity();
 
 	processModel f;
-	processMatrix1 *f_x;
-	processMatrix2 *f_w;
+	processMatrix1 f_x;
+	processMatrix2 f_w;
 
 	measurementModel *h;
 	measurementMatrix1 *h_x;

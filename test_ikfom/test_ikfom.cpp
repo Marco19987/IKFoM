@@ -33,6 +33,7 @@ int main(int argc, char **argv)
   std::fill(epsi, epsi + state_dof,
             0.001); // if the absolute of innovation of ekf update is smaller than epso, the update iteration is
                     // converged
+  
   ExternalParams process_params;
   std::function<Eigen::Matrix<double, state_dof, 1>(state_ikfom&,const input_ikfom &)> f = std::bind(get_f, std::placeholders::_1, std::placeholders::_2, (process_params));
   kf.init(f, df_dx, df_dw, get_h, dh_dx, dh_dv, MAXIMUM_ITER, epsi);

@@ -22,7 +22,7 @@ typedef MTK::SO3<double> SO3;
 
 // define base manifolds
 MTK_BUILD_MANIFOLD(pose_measure, ((vect3, position))((SO3, quaternion)));
-MTK_BUILD_MANIFOLD(wrench_measure, ((vect3, force))((vect3, tau)));
+MTK_BUILD_MANIFOLD(wrench_measure, ((vect3, force))((vect3, torque)));
 
 #undef vect3
 #undef SO3
