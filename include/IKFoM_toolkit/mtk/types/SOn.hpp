@@ -255,6 +255,7 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 	// void hat(MTK::vectview<const scalar, DOF>& v, Eigen::Matrix<scalar, 3, 3> &res) {
 	void hat(Eigen::VectorXd& v, Eigen::MatrixXd &res) {
 		// Eigen::Matrix<scalar, 3, 3> res;
+		res.resize(3, 3);
 		res << 0, -v[2], v[1],
 			v[2], 0, -v[0],
 			-v[1], v[0], 0;
@@ -263,12 +264,13 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 
 	// void Jacob_right_inv(MTK::vectview<const scalar, DOF> vec, Eigen::Matrix<scalar, 3, 3> & res){
 	void Jacob_right_inv(Eigen::VectorXd& vec, Eigen::MatrixXd &res){
-    	Eigen::MatrixXd hat_v;
+    	res.resize(3, 3);
+		Eigen::MatrixXd hat_v;
 		hat(vec, hat_v);
     	if(vec.norm() > MTK::tolerance<scalar>())
     	{
         	res = Eigen::Matrix<scalar, 3, 3>::Identity() + 0.5 * hat_v + (1 - vec.norm() * std::cos(vec.norm() / 2) / 2 / std::sin(vec.norm() / 2)) * hat_v * hat_v / vec.squaredNorm();
-    	}
+		}
     	else
     	{
         	res = Eigen::Matrix<scalar, 3, 3>::Identity();
