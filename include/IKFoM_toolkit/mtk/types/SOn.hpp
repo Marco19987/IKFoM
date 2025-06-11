@@ -267,9 +267,12 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
     	res.resize(3, 3);
 		Eigen::MatrixXd hat_v;
 		hat(vec, hat_v);
+		double squaredNorm = vec.squaredNorm();
+		double norm = vec.norm();
     	if(vec.norm() > MTK::tolerance<scalar>())
     	{
-        	res = Eigen::Matrix<scalar, 3, 3>::Identity() + 0.5 * hat_v + (1 - vec.norm() * std::cos(vec.norm() / 2) / 2 / std::sin(vec.norm() / 2)) * hat_v * hat_v / vec.squaredNorm();
+        	res = Eigen::Matrix<scalar, 3, 3>::Identity() + 0.5 * hat_v + (1/squaredNorm - (1+std::cos(norm))/(2*norm*std::sin(norm))) * hat_v * hat_v;
+			//1 - vec.norm() * std::cos(vec.norm() / 2) / 2 / std::sin(vec.norm() / 2)) * hat_v * hat_v / vec.squaredNorm();
 		}
     	else
     	{
@@ -288,7 +291,7 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 			res = Eigen::Matrix<scalar, 3, 3>::Identity();
 		}
 		else{
-			res = Eigen::Matrix<scalar, 3, 3>::Identity() - (1 - std::cos(norm)) / squaredNorm * hat_v + (1 - std::sin(norm) / norm) / squaredNorm * hat_v * hat_v;
+			res = Eigen::Matrix<scalar, 3, 3>::Identity() - (1 - std::cos(norm)) / squaredNorm * hat_v + ((norm - std::sin(norm)) / (norm * squaredNorm)) * hat_v * hat_v;
 		}
 		// return res;
 	}
