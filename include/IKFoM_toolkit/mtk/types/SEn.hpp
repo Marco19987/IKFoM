@@ -160,98 +160,185 @@ struct SEN
 	mat = mat * delta.mat;
   }
 
-  // void hat(MTK::vectview<const scalar, DOF>& v, Eigen::Matrix<scalar, dim_of_mat, dim_of_mat> &res) {
-  void hat(Eigen::VectorXd& v, Eigen::MatrixXd& res)
-  {
-	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
-	Eigen::Matrix<scalar, 3, 3> psi;
-	psi << 0, -v[2], v[1], v[2], 0, -v[0], -v[1], v[0], 0;
-	res.block<3, 3>(0, 0) = psi;
-	for (int i = 3; i < v.size() / 3 + 2; i++)
-	{
-	  res.block<3, 1>(0, i) = v.segment<3>(i + (i - 3) * 3);
-	}
-	// return res;
-  }
-
   // void Jacob_right_inv(MTK::vectview<const scalar, DOF> vec, Eigen::Matrix<scalar, dim_of_mat, dim_of_mat> & res){
-  void Jacob_right_inv(Eigen::VectorXd& vec, Eigen::MatrixXd& res)
+  void Jacob_right_inv(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
-	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
-	Eigen::Matrix<scalar, 3, 3> M_v;
-	Eigen::VectorXd vec_psi, vec_ro;
-	Eigen::MatrixXd jac_v;
-	Eigen::MatrixXd hat_v, hat_ro;
-	vec_psi = vec.segment<3>(0);
-	// Eigen::Matrix<scalar, 3, 1> ;
-	SO3_data.hat(vec_psi, hat_v);
-	SO3_data.Jacob_right_inv(vec_psi, jac_v);
-	double norm = vec_psi.norm();
-	for (int i = 0; i < vec.size() / 3; i++)
-	{
-	  res.block<3, 3>(i * 3, i * 3) = jac_v;
-	}
-	for (int i = 1; i < vec.size() / 3; i++)
-	{
-	  vec_ro = vec.segment<3>(i * 3);
-	  SO3_data.hat(vec_ro, hat_ro);
-	  if (norm > MTK::tolerance<scalar>())
-	  {
-		res.block<3, 3>(i * 3, 0) =
-			0.5 * hat_ro +
-			(1 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / norm / norm * (hat_ro * hat_v + hat_v * hat_ro) +
-			((2 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / 2 / norm / norm / norm / norm -
-			 1 / 8 / norm / norm / std::sin(norm / 2) / std::sin(norm / 2)) *
-				hat_v * (hat_ro * hat_v + hat_v * hat_ro) * hat_v;
-	  }
-	  else
-	  {
-		res.block<3, 3>(i * 3, 0) = 0.5 * hat_ro;
-	  }
-	}
-	// return res;
+	Eigen::VectorXd tau_minus = -tau;
+	Jacob_left_inv(tau_minus, res);
+
+	// 	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
+	// Eigen::Matrix<scalar, 3, 3> M_v;
+	// Eigen::VectorXd vec_psi, vec_ro;
+	// Eigen::MatrixXd jac_v;
+	// Eigen::MatrixXd hat_v, hat_ro;
+	// vec_psi = vec.segment<3>(0);
+	// // Eigen::Matrix<scalar, 3, 1> ;
+	// SO3_data.hat(vec_psi, hat_v);
+	// SO3_data.Jacob_right_inv(vec_psi, jac_v);
+	// double norm = vec_psi.norm();
+	// for (int i = 0; i < vec.size() / 3; i++)
+	// {
+	//   res.block<3, 3>(i * 3, i * 3) = jac_v;
+	// }
+	// for (int i = 1; i < vec.size() / 3; i++)
+	// {
+	//   vec_ro = vec.segment<3>(i * 3);
+	//   SO3_data.hat(vec_ro, hat_ro);
+	//   if (norm > MTK::tolerance<scalar>())
+	//   {
+	// 	res.block<3, 3>(i * 3, 0) =
+	// 		0.5 * hat_ro +
+	// 		(1 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / norm / norm * (hat_ro * hat_v + hat_v * hat_ro) +
+	// 		((2 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / 2 / norm / norm / norm / norm -
+	// 		 1 / 8 / norm / norm / std::sin(norm / 2) / std::sin(norm / 2)) *
+	// 			hat_v * (hat_ro * hat_v + hat_v * hat_ro) * hat_v;
+	//   }
+	//   else
+	//   {
+	// 	res.block<3, 3>(i * 3, 0) = 0.5 * hat_ro;
+	//   }
+	// }
   }
 
   // void Jacob_right(MTK::vectview<const scalar, DOF> & vec, Eigen::Matrix<scalar, dim_of_mat, dim_of_mat> &res){
-  void Jacob_right(Eigen::VectorXd& vec, Eigen::MatrixXd& res)
+  void Jacob_right(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
-	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
-	Eigen::MatrixXd hat_v, hat_ro;
-	Eigen::VectorXd vec_psi, vec_ro;
-	Eigen::MatrixXd jac_v;
-	vec_psi = vec.segment<3>(0);
-	// Eigen::Matrix<scalar, 3, 1> ;
-	SO3_data.hat(vec_psi, hat_v);
-	SO3_data.Jacob_right(vec_psi, jac_v);
-	// double squaredNorm = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-	// double norm = std::sqrt(squaredNorm);
-	double norm = vec_psi.norm();
-	for (int i = 0; i < vec.size() / 3; i++)
+	Eigen::VectorXd tau_minus = -tau;
+	Jacob_left(tau_minus, res);
+	// 	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
+	// Eigen::MatrixXd hat_v, hat_ro;
+	// Eigen::VectorXd vec_psi, vec_ro;
+	// Eigen::MatrixXd jac_v;
+	// vec_psi = vec.segment<3>(0);
+	// // Eigen::Matrix<scalar, 3, 1> ;
+	// SO3_data.hat(vec_psi, hat_v);
+	// SO3_data.Jacob_right(vec_psi, jac_v);
+	// // double squaredNorm = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+	// // double norm = std::sqrt(squaredNorm);
+	// double norm = vec_psi.norm();
+	// for (int i = 0; i < vec.size() / 3; i++)
+	// {
+	//   res.block<3, 3>(i * 3, i * 3) = jac_v;
+	// }
+	// for (int i = 1; i < vec.size() / 3; i++)
+	// {
+	//   vec_ro = vec.segment<3>(i * 3);
+	//   SO3_data.hat(vec_ro, hat_ro);
+	//   if (norm > MTK::tolerance<scalar>())
+	//   {
+	// 	res.block<3, 3>(i * 3, 0) =
+	// 		-1 * jac_v *
+	// 		(0.5 * hat_ro +
+	// 		 (1 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / norm / norm *
+	// 			 (hat_ro * hat_v + hat_v * hat_ro) +
+	// 		 ((2 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / 2 / norm / norm / norm / norm -
+	// 		  1 / 8 / norm / norm / std::sin(norm / 2) / std::sin(norm / 2)) *
+	// 			 hat_v * (hat_ro * hat_v + hat_v * hat_ro) * hat_v) *
+	// 		jac_v;
+	//   }
+	//   else
+	//   {
+	// 	res.block<3, 3>(i * 3, 0) = -0.5 * jac_v * hat_ro * jac_v;
+	//   }
+	// }
+  }
+
+  void Jacob_left(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  {
+	res = Eigen::Matrix<scalar, num_of_vec_plus1, num_of_vec_plus1>::Zero();
+
+	Eigen::VectorXd theta, ro;
+	theta.resize(3);
+	ro.resize(3);
+
+	theta = tau.template block<3, 1>(3, 0);
+	ro = tau.template block<3, 1>(0, 0);
+
+	SO3_type SO3_temp;
+	Eigen::MatrixXd hat_theta, hat_ro;
+	SO3_temp.hat(ro, hat_ro);
+	SO3_temp.hat(theta, hat_theta);
+
+	Eigen::MatrixXd jac;
+	SO3_temp.Jacob_right(theta, jac);
+	jac = jac.transpose();	// Jleft(theta) = Jright(theta).transpose(); [SO3]
+
+	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
+	double theta_norm = theta.norm();
+	double theta_norm_2 = theta.squaredNorm();		  // norm(theta)^2
+	double theta_norm_3 = theta_norm_2 * theta_norm;  // norm(theta)^3
+	double theta_norm_4 = theta_norm_3 * theta_norm;  // norm(theta)^4
+	double theta_norm_5 = theta_norm_4 * theta_norm;  // norm(theta)^5
+
+	if (theta_norm > MTK::tolerance<scalar>())
 	{
-	  res.block<3, 3>(i * 3, i * 3) = jac_v;
+	  Q = 0.5 * hat_ro +
+		  ((theta_norm - sin(theta_norm)) / theta_norm_3) *
+			  (hat_theta * hat_ro + hat_ro * hat_theta + hat_theta * hat_ro * hat_theta) +
+		  ((1 - theta_norm_2 / 2 - cos(theta_norm)) / theta_norm_4) *
+			  (hat_theta * hat_theta * hat_ro + hat_ro * hat_theta * hat_theta - 3 * hat_theta * hat_ro * hat_theta) -
+		  0.5 *
+			  (((1 - theta_norm_2 / 2 - cos(theta_norm)) / theta_norm_4) -
+			   3 * (theta_norm - sin(theta_norm) - theta_norm_3 / 6) / theta_norm_5) *
+			  (hat_theta * hat_ro * hat_theta * hat_theta + hat_theta * hat_theta * hat_ro * hat_theta);
 	}
-	for (int i = 1; i < vec.size() / 3; i++)
+	else
 	{
-	  vec_ro = vec.segment<3>(i * 3);
-	  SO3_data.hat(vec_ro, hat_ro);
-	  if (norm > MTK::tolerance<scalar>())
-	  {
-		res.block<3, 3>(i * 3, 0) =
-			-1 * jac_v *
-			(0.5 * hat_ro +
-			 (1 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / norm / norm *
-				 (hat_ro * hat_v + hat_v * hat_ro) +
-			 ((2 - norm * std::cos(norm / 2) / 2 / std::sin(norm / 2)) / 2 / norm / norm / norm / norm -
-			  1 / 8 / norm / norm / std::sin(norm / 2) / std::sin(norm / 2)) *
-				 hat_v * (hat_ro * hat_v + hat_v * hat_ro) * hat_v) *
-			jac_v;
-	  }
-	  else
-	  {
-		res.block<3, 3>(i * 3, 0) = -0.5 * jac_v * hat_ro * jac_v;
-	  }
+	  Q = 0.5 * hat_ro;  //! this rule if valid  for jacobian right
 	}
-	// return res;
+
+	res.block<3, 3>(0, 0) = jac;
+	res.block<3, 3>(3, 3) = jac;
+	res.block<3, 3>(0, 3) = Q;
+  }
+
+  void Jacob_left_inv(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  {
+	res = Eigen::Matrix<scalar, num_of_vec_plus1, num_of_vec_plus1>::Zero();
+
+	Eigen::VectorXd theta, ro;
+	theta.resize(3);
+	ro.resize(3);
+
+	theta = tau.template block<3, 1>(3, 0);
+	ro = tau.template block<3, 1>(0, 0);
+
+	SO3_type SO3_temp;
+	Eigen::MatrixXd hat_theta, hat_ro;
+	SO3_temp.hat(ro, hat_ro);
+	SO3_temp.hat(theta, hat_theta);
+
+	Eigen::MatrixXd jac;
+	SO3_temp.Jacob_right_inv(theta, jac);
+	jac = jac.transpose();	// Jleft_inv(theta) = Jright_inv(theta).transpose(); [SO3]
+
+	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
+	double theta_norm = theta.norm();
+	double theta_norm_2 = theta.squaredNorm();		  // norm(theta)^2
+	double theta_norm_3 = theta_norm_2 * theta_norm;  // norm(theta)^3
+	double theta_norm_4 = theta_norm_3 * theta_norm;  // norm(theta)^4
+	double theta_norm_5 = theta_norm_4 * theta_norm;  // norm(theta)^5
+
+	if (theta_norm > MTK::tolerance<scalar>())
+	{
+	  Q = 0.5 * hat_ro +
+		  ((theta_norm - sin(theta_norm)) / theta_norm_3) *
+			  (hat_theta * hat_ro + hat_ro * hat_theta + hat_theta * hat_ro * hat_theta) +
+		  ((1 - theta_norm_2 / 2 - cos(theta_norm)) / theta_norm_4) *
+			  (hat_theta * hat_theta * hat_ro + hat_ro * hat_theta * hat_theta - 3 * hat_theta * hat_ro * hat_theta) -
+		  0.5 *
+			  (((1 - theta_norm_2 / 2 - cos(theta_norm)) / theta_norm_4) -
+			   3 * (theta_norm - sin(theta_norm) - theta_norm_3 / 6) / theta_norm_5) *
+			  (hat_theta * hat_ro * hat_theta * hat_theta + hat_theta * hat_theta * hat_ro * hat_theta);
+	}
+	else
+	{
+	  Q = -0.5 * jac * hat_ro * jac;
+	}
+
+	res.block<3, 3>(0, 0) = jac;
+	res.block<3, 3>(3, 3) = jac;
+	res.block<3, 3>(0, 3) = -jac * Q * jac;
   }
 
   void S2_hat(Eigen::Matrix<scalar, 3, 3>& res)
@@ -301,64 +388,9 @@ struct SEN
 	return is;
   }
 
-  //! @name Helper functions
-  //{
-  /**
-   * Calculate the exponential map. In matrix terms this would correspond
-   * to the Rodrigues formula.
-   */
-  // FIXME vectview<> can't be constructed from every MatrixBase<>, use const Vector3x& as workaround
-  //	static SO3 exp(MTK::vectview<const scalar, 3> dvec, scalar scale = 1){
-  //   static SEN exp(const Eigen::Matrix<scalar, DOF, 1>& dvec, scalar scale = 1)
-  //   {
-  // 	SEN res;
-  // 	res.mat = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Identity();
-  // 	Eigen::Matrix<scalar, 3, 3> exp_;  //, jac;
-  // 	Eigen::MatrixXd jac;
-  // 	Eigen::Matrix<scalar, 3, 1> psi;
-  // 	Eigen::VectorXd minus_psi;
-  // 	psi = dvec.template block<3, 1>(0, 0);
-  // 	minus_psi = -psi;
-  // 	SO3_type SO3_temp;
-  // 	exp_ = SO3_type::exp(psi);
-  // 	SO3_temp.Jacob_right(minus_psi, jac);
-  // 	res.mat.template block<3, 3>(0, 0) = exp_;
-  // 	for (int i = 3; i < DOF / 3 + 2; i++)
-  // 	{
-  // 	  res.mat.template block<3, 1>(0, i) = jac * dvec.template block<3, 1>(i + (i - 3) * 3, 0);
-  // 	}
-  // 	return res;
-  //   }
-  /**
-   * Calculate the inverse of @c exp.
-   * Only guarantees that <code>exp(log(x)) == x </code>
-   */
-  //   static Eigen::Matrix<scalar, DOF, 1> log(base& orient)
-  //   {
-  // 	Eigen::Matrix<scalar, DOF, 1> res;
-  // 	res.setZero();
-  // 	Eigen::Matrix<scalar, 3, 1> psi;
-  // 	psi.setZero();
-  // 	Eigen::VectorXd minus_psi;
-  // 	Eigen::Matrix<scalar, 3, 3> mat_psi;
-  // 	mat_psi.setZero();
-  // 	Eigen::MatrixXd jac;
-  // 	mat_psi = orient.template block<3, 3>(0, 0);
-  // 	SO3_type SO3_temp;
-  // 	SO3_type exp_psi(mat_psi);
-  // 	psi = SO3_type::log(exp_psi);
-  // 	minus_psi = -psi;
-  // 	SO3_temp.Jacob_right_inv(minus_psi, jac);
-  // 	for (int i = 3; i < dim_of_mat; i++)
-  // 	{
-  // 	  res.template block<3, 1>(i + (i - 3) * 3, 0) = jac * orient.template block<3, 1>(0, i);
-  // 	}
-  // 	return res;
-  //   }
-
   static SEN exp(const Eigen::Matrix<scalar, DOF, 1>& tau, scalar scale = 1)
   {
-	//! the order of tau is [theta, t1, t2, t3, ...]
+	//! the order of tau is [r1, r2, r3, theta]
 	//! WORKING ONLY FOR SE3
 
 	SEN res;
@@ -366,28 +398,29 @@ struct SEN
 
 	Eigen::VectorXd theta;
 	theta.resize(3);
-	theta = tau.template block<3, 1>(0, 0);
-	Eigen::Matrix<scalar, 3, 3> exp_theta;
-	exp_theta = SO3_type::exp(theta, scale);
+	theta = tau.template block<3, 1>(3, 0);
 	Eigen::MatrixXd jac;
 	SO3_type SO3_temp;
 	Eigen::VectorXd theta_scaled;
 	theta_scaled = theta * scale;
 	SO3_temp.Jacob_right(theta_scaled, jac);
 
-	res.mat.template block<3, 3>(0, 0) = exp_theta;
-	res.mat.template block<3, 1>(0, 3) = jac * tau.template block<3, 1>(3, 0) * scale;
+	Eigen::Matrix<scalar, 3, 3> theta_exp;
+	theta_exp = SO3_type::exp(theta, scale);
+	res.mat.template block<3, 3>(0, 0) = theta_exp;
+	res.mat.template block<3, 1>(0, 3) = jac * tau.template block<3, 1>(0, 0) * scale;
 
 	// for (int i = 3; i < DOF / 3 + 2; i++)
 	// {
 	//   res.mat.template block<3, 1>(0, i) = jac * tau.template block<3, 1>(i + (i - 3) * 3, 0);
 	// }
+
 	return res;
   }
 
   static Eigen::Matrix<scalar, DOF, 1> log(base& transform)
   {
-	//! the order of tau is [theta, t1, t2, t3, ...]
+	//! the order of tau is [r1, r2, r3, theta]
 	//! WORKING ONLY FOR SE3
 	Eigen::Matrix<scalar, DOF, 1> res;
 	res.setZero();
@@ -400,8 +433,8 @@ struct SEN
 	SO3_type SO3_temp;
 	SO3_temp.Jacob_right_inv(theta, jac);
 
-	res.template block<3, 1>(0, 0) = theta;
-	res.template block<3, 1>(3, 0) = jac * transform.template block<3, 1>(0, 3);
+	res.template block<3, 1>(0, 0) = jac * transform.template block<3, 1>(0, 3);
+	res.template block<3, 1>(3, 0) = theta;
 
 	// for (int i = 3; i < dim_of_mat; i++)
 	// {
@@ -409,6 +442,19 @@ struct SEN
 	// }
 
 	return res;
+  }
+
+  void hat(Eigen::VectorXd& v, Eigen::MatrixXd& res)
+  {
+	res = Eigen::Matrix<scalar, dim_of_mat, dim_of_mat>::Zero();
+	Eigen::Matrix<scalar, 3, 3> psi;
+	psi << 0, -v[5], v[4], v[5], 0, -v[3], -v[4], v[3], 0;
+	res.block<3, 3>(0, 0) = psi;
+	res.block<3, 1>(0, 3) = v.segment<3>(0);
+	// for (int i = 3; i < v.size() / 3 + 2; i++)
+	// {
+	//   res.block<3, 1>(0, i) = v.segment<3>(i + (i - 3) * 3);
+	// }
   }
 };
 
