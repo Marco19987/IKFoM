@@ -418,7 +418,7 @@ struct SEN
 	return res;
   }
 
-  static Eigen::Matrix<scalar, DOF, 1> log(base& transform)
+  static Eigen::Matrix<scalar, DOF, 1> log(const base& transform)
   {
 	//! the order of tau is [r1, r2, r3, theta]
 	//! WORKING ONLY FOR SE3
