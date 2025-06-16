@@ -261,7 +261,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_temp.Jacob_right(theta, jac);
-	jac = jac.transpose();	// Jleft(theta) = Jright(theta).transpose(); [SO3]
+	jac.transposeInPlace();	// Jleft(theta) = Jright(theta).transpose(); [SO3]
 
 	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
 	double theta_norm = theta.norm();
@@ -310,7 +310,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_temp.Jacob_right_inv(theta, jac);
-	jac = jac.transpose();	// Jleft_inv(theta) = Jright_inv(theta).transpose(); [SO3]
+	jac.transposeInPlace();	// Jleft_inv(theta) = Jright_inv(theta).transpose(); [SO3]
 
 	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
 	double theta_norm = theta.norm();
