@@ -253,7 +253,7 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 	}
 
 	// void hat(MTK::vectview<const scalar, DOF>& v, Eigen::Matrix<scalar, 3, 3> &res) {
-	void hat(Eigen::VectorXd& v, Eigen::MatrixXd &res) {
+	void hat(const Eigen::VectorXd& v, Eigen::MatrixXd &res) {
 		// Eigen::Matrix<scalar, 3, 3> res;
 		res.resize(3, 3);
 		res << 0, -v[2], v[1],
@@ -263,7 +263,7 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 	}
 
 	// void Jacob_right_inv(MTK::vectview<const scalar, DOF> vec, Eigen::Matrix<scalar, 3, 3> & res){
-	void Jacob_right_inv(Eigen::VectorXd& vec, Eigen::MatrixXd &res){
+	void Jacob_right_inv(const Eigen::VectorXd& vec, Eigen::MatrixXd &res){
     	res.resize(3, 3);
 		Eigen::MatrixXd hat_v;
 		hat(vec, hat_v);
@@ -282,7 +282,7 @@ struct SO3 : public Eigen::Quaternion<_scalar, Options> {
 	}
 
 	// void Jacob_right(MTK::vectview<const scalar, DOF> & v, Eigen::Matrix<scalar, 3, 3> &res){
-	void Jacob_right(Eigen::VectorXd& v, Eigen::MatrixXd &res){
+	void Jacob_right(const Eigen::VectorXd& v, Eigen::MatrixXd &res){
 		Eigen::MatrixXd hat_v;
 		hat(v, hat_v);
 		double squaredNorm = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];

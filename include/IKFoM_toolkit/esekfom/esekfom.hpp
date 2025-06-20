@@ -2029,7 +2029,7 @@ public:
 			}
 
 			Matrix<scalar_type, Eigen::Dynamic, Eigen::Dynamic> K_;
-			if(n > dof_Measurement)
+			if(true)//(n > dof_Measurement)
 			{
 				K_= P_ * h_x.transpose() * (h_x * P_ * h_x.transpose() + h_v * R * h_v.transpose()).inverse();
 			}

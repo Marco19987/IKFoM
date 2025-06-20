@@ -161,7 +161,7 @@ struct SEN
   }
 
   // void Jacob_right_inv(MTK::vectview<const scalar, DOF> vec, Eigen::Matrix<scalar, dim_of_mat, dim_of_mat> & res){
-  void Jacob_right_inv(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  void Jacob_right_inv(const Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
 	Eigen::VectorXd tau_minus = -tau;
 	Jacob_left_inv(tau_minus, res);
@@ -201,7 +201,7 @@ struct SEN
   }
 
   // void Jacob_right(MTK::vectview<const scalar, DOF> & vec, Eigen::Matrix<scalar, dim_of_mat, dim_of_mat> &res){
-  void Jacob_right(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  void Jacob_right(const Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
 	Eigen::VectorXd tau_minus = -tau;
 	Jacob_left(tau_minus, res);
@@ -243,7 +243,7 @@ struct SEN
 	// }
   }
 
-  void Jacob_left(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  void Jacob_left(const Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
 	res = Eigen::Matrix<scalar, num_of_vec_plus1, num_of_vec_plus1>::Zero();
 
@@ -292,7 +292,7 @@ struct SEN
 	res.block<3, 3>(0, 3) = Q;
   }
 
-  void Jacob_left_inv(Eigen::VectorXd& tau, Eigen::MatrixXd& res)
+  void Jacob_left_inv(const Eigen::VectorXd& tau, Eigen::MatrixXd& res)
   {
 	res = Eigen::Matrix<scalar, num_of_vec_plus1, num_of_vec_plus1>::Zero();
 
@@ -431,7 +431,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_type SO3_temp;
-	SO3_temp.Jacob_right_inv(theta, jac);
+	SO3_temp.Jacob_right_inv(-theta, jac); // Jr(-theta) = Jleft(theta)
 
 	res.template block<3, 1>(0, 0) = jac * transform.template block<3, 1>(0, 3);
 	res.template block<3, 1>(3, 0) = theta;
