@@ -261,7 +261,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_temp.Jacob_right(theta, jac);
-	jac.transposeInPlace();	// Jleft(theta) = Jright(theta).transpose(); [SO3]
+	jac.transposeInPlace();	 // Jleft(theta) = Jright(theta).transpose(); [SO3]
 
 	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
 	double theta_norm = theta.norm();
@@ -284,7 +284,7 @@ struct SEN
 	}
 	else
 	{
-	  Q = 0.5 * hat_ro;  //! this rule if valid  for jacobian right
+	  Q = 0.5 * hat_ro;	 //! this rule if valid  for jacobian right
 	}
 
 	res.block<3, 3>(0, 0) = jac;
@@ -310,7 +310,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_temp.Jacob_right_inv(theta, jac);
-	jac.transposeInPlace();	// Jleft_inv(theta) = Jright_inv(theta).transpose(); [SO3]
+	jac.transposeInPlace();	 // Jleft_inv(theta) = Jright_inv(theta).transpose(); [SO3]
 
 	Eigen::Matrix<scalar, 3, 3> Q = Eigen::Matrix<scalar, 3, 3>::Zero();
 	double theta_norm = theta.norm();
@@ -403,7 +403,7 @@ struct SEN
 	SO3_type SO3_temp;
 	Eigen::VectorXd theta_scaled;
 	theta_scaled = theta * scale;
-	SO3_temp.Jacob_right(theta_scaled, jac);
+	SO3_temp.Jacob_right(-theta_scaled, jac);  // Jr(-theta) = Jleft(theta)
 
 	Eigen::Matrix<scalar, 3, 3> theta_exp;
 	theta_exp = SO3_type::exp(theta, scale);
@@ -431,7 +431,7 @@ struct SEN
 
 	Eigen::MatrixXd jac;
 	SO3_type SO3_temp;
-	SO3_temp.Jacob_right_inv(-theta, jac); // Jr(-theta) = Jleft(theta)
+	SO3_temp.Jacob_right_inv(-theta, jac);	// Jr(-theta) = Jleft(theta)
 
 	res.template block<3, 1>(0, 0) = jac * transform.template block<3, 1>(0, 3);
 	res.template block<3, 1>(3, 0) = theta;
